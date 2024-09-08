@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Create Challenge
+{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .form-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .form-container h2 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        height: 100px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .form-actions button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .form-actions .cancel-button {
+        background-color: #ccc;
+        color: #333;
+    }
+
+    .form-actions .submit-button {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .co2-impact {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .co2-impact button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .co2-impact .result {
+        margin-top: 10px;
+        font-size: 1.2em;
+        color: #4CAF50;
+    }
+
+    .co2-impact .result.hidden {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h2>Create a New Challenge</h2>
+        <form id="challengeForm" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" name="title" required placeholder="Enter Challenge Title">
+            </div>
+
+            <div class="form-group">
+                <label for="why">Why (Purpose)</label>
+                <textarea class="form-control" id="why" name="why" rows="3" placeholder="Explain the purpose of this challenge"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Provide a detailed description"></textarea>
+            </div>
+
+            <!-- Dropdown for Challenge Type -->
+            <div class="form-group">
+                <label for="challenge_type">Challenge Type</label>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="challengeTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Select Challenge Type
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="challengeTypeDropdown">
+      
+                        <a class="dropdown-item" href="#" onclick="selectChallengeType('Office Space Utilization')">Office Space Utilization</a>
+                        <a class="dropdown-item" href="#" onclick="selectChallengeType('Commute by bike<')">Commute by bike</a>
+                        <a class="dropdown-item" href="#" onclick="selectChallengeType('Printing Reduction')">Printing Reduction</a>
+                        <a class="dropdown-item" href="#" onclick="selectChallengeType('Printing Reduction')">Food Waste Reduction</a>
+                        <a class="dropdown-item" href="#" onclick="selectChallengeType('Printing Reduction')">Energy Efficiency </a>
+
+                    </div>
+                    <input type="hidden" id="challenge_type" name="challenge_type">
+                </div>
+            </div>
+
+            <!-- Participants Selection -->
+            <div class="form-group">
+                <label for="participants">Participants</label>
+                <div>
+                    <button type="button" class="btn btn-primary" id="selectAll">Select All</button>
+                    <button type="button" class="btn btn-primary" id="clearAll">Clear All</button>
+                    <label for="department">Filter by Department:</label>
+                    <select class="form-control" id="departmentFilter">
+                        <option value="">Select Department</option>
+                        {% for department in departments %}
+                            <option value="{{ department }}">{{ department }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <select class="form-control" id="participants" name="participants" multiple>
+                    {% for email in emails %}
+                        <option value="{{ email }}">{{ email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Dropdown for Duration -->
+            <div class="form-group">
+                <label for="duration">Duration</label>
+                <select id="duration" name="duration" class="form-control" required>
+                    <option value="" disabled selected>Select duration</option>
+                    <option value="1 Week">1 Week</option>
+                    <option value="1 Month">1 Month</option>
+                    <option value="3 Months">3 Months</option>
+                </select>
+            </div>
+
+            <!-- Dropdown for Reward -->
+            <div class="form-group">
+                <label for="reward">Reward</label>
+                <select id="reward" name="reward" class="form-control" required>
+                
+                    <option value="" disabled selected>Select reward suggestions</option>
+                    <option value="send applause points">Send Applause points</option>
+                    <option value="certificates">Certificates</option>
+                    <option value="eco-friendly products">Eco-friendly products</option>
+                    <option value="company recognition">Company recognition</option>
+                </select>
+            </div>
+
+
+            <!-- CO2 Estimate Button -->
+            <div class="co2-impact">
+                <button type="button" class="submit-button" id="EstimateButton">Estimate CO2 Impact</button>
+                <div class="result hidden" id="estimatedAmount">Estimated CO2 Impact per person</div>
+            </div>
+
+            <!-- Form Submit and Cancel Buttons -->
+            <div class="form-actions">
+                <button type="button" class="cancel-button">Cancel</button>
+                <button type="submit" class="submit-button">Create Challenge</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Dropdown functionality
+    let selectedChallengeType = '';
+    let selectedDuration = '';
+    let selectedReward = '';
+
+    function selectChallengeType(type) {
+        selectedChallengeType = type;
+        document.getElementById('challenge_type').value = type;
+    }
+
+    // Select All participants
+    document.getElementById('selectAll').addEventListener('click', function() {
+        const participantsSelect = document.getElementById('participants');
+        for (let option of participantsSelect.options) {
+            option.selected = true;
+        }
+    });
+
+    // Clear All participants
+    document.getElementById('clearAll').addEventListener('click', function() {
+        const participantsSelect = document.getElementById('participants');
+        for (let option of participantsSelect.options) {
+            option.selected = false;
+        }
+    });
+
+    // Filter participants by department
+    document.getElementById('departmentFilter').addEventListener('change', function() {
+        const selectedDepartment = this.value;
+        const participantsSelect = document.getElementById('participants');
+
+        // Fetch participants based on the selected department
+        fetch('/get_users_by_department/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ department: selectedDepartment })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Clear current participants
+            participantsSelect.innerHTML = '';
+
+            // Populate participants belonging to the selected department
+            if (data.participants && data.participants.length > 0) {
+                data.participants.forEach(function(participant) {
+                    let option = document.createElement('option');
+                    option.value = participant.email;
+                    option.text = participant.email;
+                    participantsSelect.add(option);
+                });
+            } else {
+                let option = document.createElement('option');
+                option.text = 'No participants found';
+                participantsSelect.add(option);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Handle CO2 Estimate Button
+    document.getElementById('EstimateButton').addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent default form submission
+        const form = document.getElementById('challengeForm');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Send the form data using fetch API
+        fetch('/challenges/', {  // Correct URL should point to 'create_challenge'
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                estimate: true,
+                title: form.title.value,
+                why: form.why.value,
+                description: form.description.value,
+                challenge_type: form.challenge_type.value,
+                participants: form.participants.value,
+                reward: form.reward.value,
+                duration: form.duration.value,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.impact) {
+                // Display the estimated impact
+                const amount = document.getElementById('estimatedAmount');
+                amount.textContent = `Estimated Carbon Footprint: ${data.impact}`;
+                amount.classList.remove('hidden');  // Make it visible
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Form submission handler
+    document.getElementById('challengeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = document.getElementById('challengeForm');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Send the form data for challenge creation
+        fetch('/challenges/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                submit: true,
+                title: form.title.value,
+                why: form.why.value,
+                description: form.description.value,
+                challenge_type: form.challenge_type.value,
+                participants: form.participants.value,
+                duration: form.duration.value,
+                reward: form.reward.value,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert('Challenge created successfully!');
+                window.location.href = '/';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+{% endblock %}

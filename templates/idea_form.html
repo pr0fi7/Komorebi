@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Submit an Idea
+{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+    }
+    .header {
+        background-color: white;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    .form-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+    }
+    .form-container h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    .form-container p.description {
+        font-size: 1em;
+        margin-bottom: 20px;
+        color: #555;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-group .description {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 5px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    .form-group textarea {
+        resize: vertical;
+        height: 150px;
+    }
+    .form-group.hidden {
+        display: none;
+    }
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+    .form-actions button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .form-actions .cancel-button {
+        background-color: #ccc;
+        color: #333;
+    }
+    .form-actions .submit-button {
+        background-color: #4CAF50;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>Submit an Idea</h1>
+        <form id="ideaForm" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="title">Idea Title</label>
+                <input type="text" id="title" name="title" required placeholder="Enter Idea Title">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Describe your idea" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="Energy Efficiency">Energy Efficiency</option>
+                    <option value="Sustainability">Sustainability</option>
+                    <option value="Recycling">Recycling</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <!-- Hidden input field for specifying 'Other' -->
+            <div class="form-group hidden" id="otherCategoryDiv">
+                <label for="other_category">Please specify</label>
+                <input type="text" id="other_category" name="other_category" placeholder="Specify other category">
+            </div>
+
+            <div class="form-group">
+                <label for="co2_saved">Estimated CO2 Savings (kg)</label>
+                <input type="number" id="co2_saved" name="co2_saved" step="0.01" placeholder="Enter estimated CO2 savings in kg" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="cancel-button" id="CancelBtn">Cancel</button>
+                <button type="submit" class="submit-button">Submit Idea</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('CancelBtn').addEventListener('click', function() {
+        window.location.href = '/';  // Redirect to the home page
+    });
+    document.getElementById('category').addEventListener('change', function() {
+        const otherCategoryDiv = document.getElementById('otherCategoryDiv');
+        if (this.value === 'Other') {
+            otherCategoryDiv.classList.remove('hidden');  // Show the other category input
+        } else {
+            otherCategoryDiv.classList.add('hidden');  // Hide the other category input
+        }
+    });
+
+    document.getElementById('ideaForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent default form submission
+
+        const form = document.getElementById('ideaForm');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Check if "Other" is selected
+        let category = form.category.value;
+        if (category === 'Other') {
+            category = form.other_category.value;  // Use the custom value entered for 'Other'
+        }
+
+        // Send the form data using fetch API
+        fetch('/submit_idea/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken  // Include CSRF token
+            },
+            body: JSON.stringify({
+                title: form.title.value,
+                description: form.description.value,
+                category: category,  // Send the correct category (either selected or custom)
+                co2_saved: form.co2_saved.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                window.location.href = data.redirect_url;  // Redirect to the challenge page
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+{% endblock %}

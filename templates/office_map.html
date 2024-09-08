@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+{% block title %}Room and Open Space Booking{% endblock %}
+{% block styles %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    #CEO {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        padding: 20px;
+        flex-wrap: wrap;
+    }
+
+    .formularCEO {
+        background-color: #fff;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 100%;
+        max-width: 500px;
+        margin-bottom: 20px;
+    }
+
+    .formularCEO h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 24px;
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    td {
+        padding: 10px 0;
+        vertical-align: top;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    input, select, textarea, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 15px;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    #map {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 400px;
+        margin: 20px 0;
+    }
+
+    .scalable {
+        width: 100%;
+        height: auto;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.7;
+        z-index: 2;
+        display: none;
+    }
+
+    .tabs {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+    }
+
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #ddd;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .tab.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .form-group-inline {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .form-group-inline label {
+        margin-right: 10px;
+    }
+
+    .form-group-inline input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+    }
+
+    .form-group-inline input[type="number"] {
+        width: 60px;
+        margin-left: 10px;
+    }
+
+    .recommended-table {
+        margin-top: 20px;
+    }
+
+    .recommended-table table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .recommended-table th, .recommended-table td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .green {
+        background-color: #d4edda;
+    }
+
+    .yellow {
+        background-color: #fff3cd;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="CEO">
+    <div class="formularCEO">
+        <h2>Room and Open Space Booking</h2>
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('meetingRoom')">Meeting Rooms</div>
+            <div class="tab" onclick="showTab('openSpace')">Open Spaces</div>
+        </div>
+
+        <!-- Meeting Rooms Form -->
+        <div id="meetingRoom" class="tab-content active">
+            <form id="bookingForm" method="POST">
+                {% csrf_token %}
+                <table>
+                    <tr class="form-group">
+                        <td><label for="date">Date</label></td>
+                        <td><input type="date" id="date" name="date" required></td>
+                    </tr>
+
+                    <tr class="form-group">
+                        <td><label for="start_time">Start Time</label></td>
+                        <td><input type="time" id="start_time" name="start_time" required></td>
+                    </tr>
+
+                    <tr class="form-group">
+                        <td><label for="end_time">End Time</label></td>
+                        <td><input type="time" id="end_time" name="end_time" required></td>
+                    </tr>
+
+                    <tr class="form-group">
+                        <td><label for="participants">Number of Participants</label></td>
+                        <td><input type="number" id="participants" name="participants" required></td>   
+
+                    </tr>
+
+                    <tr class="form-group">
+                        <td><label for="requirements">Additional Requirements</label></td>
+                        <td>
+                            <select id="requirements" name="requirements" multiple>
+                                <option value="camera">Camera</option>
+                                <option value="monitor">Monitor</option>
+                                <option value="projector">Projector</option>
+                                <option value="whiteboard">Whiteboard</option>
+                                <option value="conference_phone">Conference Phone</option>
+                                <option value="speakers">Speakers</option>
+                                <option value="extra_seating">Extra Seating</option>
+                                <option value="presentation_laptop">Presentation Laptop</option>
+                            </select>
+                            <small>Hold down the Ctrl (Windows) / Command (Mac) button to select multiple options.</small>
+                        </td>
+                    </tr>
+                    
+
+                    <tr>
+                        <td colspan="2">
+                            <button type="submit">Submit</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <!-- Open Spaces Form -->
+        <div id="openSpace" class="tab-content">
+            <form id="openSpaceForm" method="POST">
+                {% csrf_token %}
+                <table>
+                    <tr class="form-group">
+                        <td><label for="date">Date</label></td>
+                        <td><input type="date" id="open_date" name="open_date" required></td>
+                    </tr>
+
+                    <tr class="form-group">
+                        <td><label for="start_time">Start Time</label></td>
+                        <td><input type="time" id="open_start_time" name="open_start_time" required></td>
+                    </tr>
+
+                    <tr class="form-group">
+                        <td><label for="end_time">End Time</label></td>
+                        <td><input type="time" id="open_end_time" name="open_end_time" required></td>
+                    </tr>
+
+                    <tr class="form-group">
+                        <td><label for="requirements">Additional Requirements</label></td>
+                        <td><textarea id="open_requirements" name="open_requirements" rows="2"></textarea></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2">
+                            <button type="submit">Submit</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <!-- Office Map -->
+    <div id="map">
+        <img src="https://i.ibb.co/TtkNH62/export-1-1.png" class="scalable" alt="Office Map">
+        <img src="https://i.ibb.co/SPgzF2B/thsa-One.png" id="B" class="scalable overlay" alt="Top Left">
+        <img src="https://i.ibb.co/XCrTjp2/links-Oben.png" id="A" class="scalable overlay" alt="Top Right">
+        <img src="https://i.ibb.co/JygRZKS/rechts-Unten.png" id="K" class="scalable overlay" alt="Bottom Right">
+        <img src="https://i.ibb.co/WywT0hw/3-111.png" id="3.111" class="scalable overlay" alt="3-111">
+        <img src="https://i.ibb.co/Lg66tFg/3-131A.png" id="3.131A" class="scalable overlay" alt="3-131A">
+        <img src="https://i.ibb.co/YfVgyn5/3-131C.png" id="3.131C" class="scalable overlay" alt="3-131C">
+        <img src="https://i.ibb.co/2dsrMfK/3-142.png" id="3.142" class="scalable overlay" alt="3-142">
+        <img src="https://i.ibb.co/ZVDTFnV/3-261A.png" id="3.261A" class="scalable overlay" alt="3-261A">
+    </div>
+
+    <!-- Recommended Rooms Table -->
+    <div class="recommended-table" id="recommendedTable" style="display:none;">
+        <h2>Recommended Options</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>CO2 Contributions</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="roomList">
+                <!-- Table rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showTab(tabId) {
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        const tabButtons = document.querySelectorAll('.tab');
+        tabButtons.forEach(button => button.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // Function to display all recommended rooms or spaces
+    function showRecommendedRooms(recommendedRooms) {
+        const overlays = document.querySelectorAll('.overlay');
+        overlays.forEach(overlay => {
+            overlay.style.display = 'none';
+        });
+
+        for (const room in recommendedRooms) {
+            const roomImage = document.getElementById(room);
+            if (roomImage) {
+                roomImage.style.display = 'block';
+            } else {
+                console.error("Room not found: " + room);
+            }
+        }
+    }
+
+    function displayRecommendedTable(rooms) {
+        const roomList = document.getElementById('roomList');
+        roomList.innerHTML = ''; // Clear existing rows
+
+        for (const room in rooms) {
+            const savings = rooms[room];
+            const row = document.createElement('tr');
+            
+            let colorClass = savings < 0.02 ? 'green' : 'yellow';
+
+            row.innerHTML = `
+                <td>${room}</td>
+                <td class="${colorClass}">${savings.toFixed(4)} kg CO2</td>
+                <td><button onclick="bookRoom('${room}')">Book</button></td>
+            `;
+
+            roomList.appendChild(row);
+        }
+
+        document.getElementById('recommendedTable').style.display = 'block';
+    }
+
+    function bookRoom(room) {
+        alert(`Room or Space ${room} booked successfully!`);
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('bookingForm');
+        const csrfToken = getCsrfToken();
+
+        const data = {
+            date: form.date.value,
+            start_time: form.start_time.value,
+            end_time: form.end_time.value,
+            requirements: form.requirements ? form.requirements.value : "",
+            participants: form.participants ? form.participants.value : ""
+        };
+
+        // Mock data for recommended rooms
+        const mockResponse = {
+            recommended_room: {
+                '3.111': 0.0156,
+                '3.131A': 0.0123,
+                '3.131C': 0.0234
+            }
+        };
+
+        showRecommendedRooms(mockResponse.recommended_room);
+        displayRecommendedTable(mockResponse.recommended_room);
+    });
+
+    // Handle Open Space Form submission
+    document.getElementById('openSpaceForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('openSpaceForm');
+        const csrfToken = getCsrfToken();
+
+        const data = {
+            date: form.open_date.value,
+            start_time: form.open_start_time.value,
+            end_time: form.open_end_time.value,
+            requirements: form.open_requirements ? form.open_requirements.value : ""
+        };
+
+        // Mock data for recommended open spaces
+        const mockResponse = {
+            recommended_room: {
+                'B': 1.1,
+                'A': 1.3,
+                'K': 1.9,
+            }
+        };
+
+        showRecommendedRooms(mockResponse.recommended_room);
+        displayRecommendedTable(mockResponse.recommended_room);
+    });
+</script>
+{% endblock %}

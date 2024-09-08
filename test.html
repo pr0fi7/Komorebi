@@ -1,0 +1,390 @@
+New! Keyboard shortcuts … Drive keyboard shortcuts have been updated to give you first-letters navigation
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenge Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .back-button {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .challenge-details, .challenge-info {
+            width: 50%;
+        }
+        .challenge-details h1 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .challenge-details p {
+            font-size: 1em;
+            color: #666;
+        }
+        .challenge-info {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 40%;
+        }
+        .challenge-info p {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .challenge-info .status {
+            color: #FF4500;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .leave-button {
+            background-color: #FFA500;
+            color: white;
+        }
+        .accept-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .share-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #666;
+            margin-top: 20px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .popup button {
+            margin: 10px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .challenge-overview {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+            /* Ensure the container adapts for the progress bar */
+            padding-bottom: 40px; /* Add some bottom padding to make room for the progress bar */
+        }
+
+        .progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            margin: 0;
+        }
+
+        .progress-bar {
+            display: block;
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 25px; /* Adjust the height if necessary */
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 25px; /* Match this with the height */
+            color: white;
+        }
+
+        .current-status {
+            display: none;
+            text-align: left; /* Align text to the left */
+            margin-top: 40px; /* Adjusted margin-top to move it down */
+            width: 100%; /* Ensure it takes the full width */
+        }
+    </style>
+    <script>
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function showPopup(message, type, callback) {
+            var popup = document.getElementById('popup');
+            var overlay = document.getElementById('overlay');
+            popup.querySelector('.popup-message').textContent = message;
+            var okButton = popup.querySelector('.ok-button');
+            var yesButton = popup.querySelector('.yes-button');
+            var noButton = popup.querySelector('.no-button');
+            var emailInput = popup.querySelector('.email-input');
+            var shareButton = popup.querySelector('.share-button');
+
+            okButton.style.display = 'none';
+            yesButton.style.display = 'none';
+            noButton.style.display = 'none';
+            emailInput.style.display = 'none';
+            shareButton.style.display = 'none';
+
+            if (type === 'info') {
+                okButton.style.display = 'inline-block';
+                okButton.onclick = function() {
+                    hidePopup();
+                    if (callback) callback();
+                };
+            } else if (type === 'confirm') {
+                yesButton.style.display = 'inline-block';
+                noButton.style.display = 'inline-block';
+                yesButton.onclick = function() {
+                    callback(true);
+                    hidePopup();
+                };
+                noButton.onclick = function() {
+                    callback(false);
+                    hidePopup();
+                };
+            } else if (type === 'share') {
+                emailInput.style.display = 'block';
+                shareButton.style.display = 'inline-block';
+                shareButton.onclick = function() {
+                    callback(emailInput.value);
+                    hidePopup();
+                };
+            }
+
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function hidePopup() {
+            var popup = document.getElementById('popup');
+            var overlay = document.getElementById('overlay');
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+
+        function acceptChallenge() {
+            const title = getQueryParameter('title');
+            const description = getQueryParameter('description');
+            
+            showPopup('Thanks for joining the challenge and helping to reduce CO2-Emissions!', 'info', function() {
+                // Add to My Challenges
+                let myChallenges = JSON.parse(localStorage.getItem('myChallenges')) || [];
+                myChallenges.push({ title, description });
+                localStorage.setItem('myChallenges', JSON.stringify(myChallenges));
+                
+                // Remove from All Challenges
+                let allChallenges = JSON.parse(localStorage.getItem('allChallenges')) || [];
+                allChallenges = allChallenges.filter(challenge => challenge.title !== title);
+                localStorage.setItem('allChallenges', JSON.stringify(allChallenges));
+                
+                // Update UI
+                updateChallengeUI('my-challenges');
+            });
+        }
+
+        function leaveChallenge() {
+            const title = getQueryParameter('title');
+            const description = getQueryParameter('description');
+            
+            showPopup('Are you sure you want to leave the challenge?', 'confirm', function(confirm) {
+                if (confirm) {
+                    // Remove from My Challenges
+                    let myChallenges = JSON.parse(localStorage.getItem('myChallenges')) || [];
+                    myChallenges = myChallenges.filter(challenge => challenge.title !== title);
+                    localStorage.setItem('myChallenges', JSON.stringify(myChallenges));
+                    
+                    // Add back to All Challenges
+                    let allChallenges = JSON.parse(localStorage.getItem('allChallenges')) || [];
+                    allChallenges.push({ title, description });
+                    localStorage.setItem('allChallenges', JSON.stringify(allChallenges));
+                    
+                    // Update UI
+                    updateChallengeUI('all-challenges');
+                }
+            });
+        }
+
+        function shareChallenge() {
+            const title = getQueryParameter('title');
+            const description = getQueryParameter('description');
+            showPopup('Share Challenge', 'share', function(emails) {
+                if (emails) {
+                    // Here you would typically send this data to your server
+                    console.log(`Sharing challenge "${title}" with: ${emails}`);
+                    alert('Challenge shared successfully!');
+                }
+            });
+        }
+
+        function submitChallenge() {
+            const title = getQueryParameter('title');
+            const description = getQueryParameter('description');
+            const co2Saved = 20; // Example value, replace with actual calculation if available
+
+            showPopup(`You have currently saved ${co2Saved}kg of CO2. Do you really want to submit your challenge or do you want to keep saving CO2?`, 'confirm', function(confirm) {
+                if (confirm) {
+                    // Remove from My Challenges
+                    let myChallenges = JSON.parse(localStorage.getItem('myChallenges')) || [];
+                    myChallenges = myChallenges.filter(challenge => challenge.title !== title);
+                    localStorage.setItem('myChallenges', JSON.stringify(myChallenges));
+                    
+                    // Add back to All Challenges
+                    let allChallenges = JSON.parse(localStorage.getItem('allChallenges')) || [];
+                    allChallenges.push({ title, description });
+                    localStorage.setItem('allChallenges', JSON.stringify(allChallenges));
+                    
+                    // Update UI
+                    updateChallengeUI('all-challenges');
+                }
+            });
+        }
+
+        function updateChallengeUI(origin) {
+            const buttonsContainer = document.querySelector('.buttons');
+            const progressBarContainer = document.querySelector('.progress-bar-container');
+            const deadlineElement = document.querySelector('.challenge-info .deadline');
+            const currentStatusElement = document.querySelector('.current-status'); // Hier definieren
+
+            if (origin === 'my-challenges') {
+                buttonsContainer.innerHTML = `
+                    <button class="leave-button" onclick="leaveChallenge()">Leave Challenge</button>
+                    <button class="submit-button" onclick="submitChallenge()">Submit Challenge</button>
+                    <button class="share-button" onclick="shareChallenge()">Share Challenge</button>
+                `;
+                deadlineElement.style.display = 'block';
+                progressBarContainer.style.display = 'block';
+                currentStatusElement.style.display = 'block';
+            } else if (origin === 'all-challenges') {
+                buttonsContainer.innerHTML = `
+                    <button class="accept-button" onclick="acceptChallenge()">Accept Challenge</button>
+                    <button class="share-button" onclick="shareChallenge()">Share Challenge</button>
+                `;
+                deadlineElement.style.display = 'none';
+                progressBarContainer.style.display = 'none';
+                currentStatusElement.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const origin = getQueryParameter('origin');
+            const title = getQueryParameter('title');
+            const description = getQueryParameter('description');
+
+            document.querySelector('.challenge-details h1').textContent = title;
+            document.querySelector('.challenge-details p').textContent = description;
+
+            updateChallengeUI(origin);
+        });
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="history.back()">← Back</div>
+        <img src="G:/Meine Ablage/Hackathon/Group 3.svg" alt="Komorebi Logo" width="200">
+    </div>
+    <div class="container">
+        <div class="challenge-overview">
+            <div class="challenge-details">
+                <h1>Challenge Title</h1>
+                <p>Challenge Description</p>
+            </div>
+            <div class="challenge-info">
+                <p><strong>Challenge Type:</strong> Commuting</p>
+                <p><strong>CO2 Impact Goal:</strong> 20kg of CO2 per person</p>
+                <p><strong>Status:</strong> <span class="status">Ongoing</span></p>
+                <p><strong>Target:</strong> Individuals</p>
+                <p class="deadline"><strong>Deadline:</strong> 10.10.2024</p>
+            </div>
+            <!-- Move progress bar container here -->
+            <div class="current-status">
+                <p>Current Status:</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-bar-inner" style="width: 55%;">55%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="buttons">
+            <!-- Buttons will be dynamically inserted here based on the origin -->
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2024 KomorebiHub. All rights reserved.
+    </div>
+    <div id="popup" class="popup">
+        <p class="popup-message"></p>
+        <input type="text" class="email-input" placeholder="Enter email addresses (comma-separated)" style="display: none; width: 100%; margin-bottom: 10px;">
+        <button class="ok-button">Okay</button>
+        <button class="yes-button">Yes</button>
+        <button class="no-button">Keep saving</button>
+        <button class="share-button">Share</button>
+    </div>
+    <div id="overlay" class="overlay"></div>
+</body>
+</html>

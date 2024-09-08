@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}Challenges{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+    }
+
+    .header {
+        background-color: white;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .tabs {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+        border-bottom: 2px solid #4CAF50;
+        color: #4CAF50;
+    }
+
+    .content {
+        display: none;
+    }
+
+    .content.active {
+        display: block;
+    }
+
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 250px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card h3 {
+        margin: 10px 0;
+    }
+
+    .card p {
+        color: #666;
+    }
+
+    .card button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px 0;
+    }
+
+    .accept-button {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .leave-button {
+        background-color: #FFA500;
+        color: white;
+    }
+
+    .footer {
+        text-align: center;
+        padding: 20px;
+        background-color: #f5f5f5;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Challenges</h1>
+</div>
+
+<div class="tabs">
+    <div class="tab active" data-tab="all-challenges" onclick="showTab('all-challenges')">All Challenges</div>
+    <div class="tab" data-tab="my-challenges" onclick="showTab('my-challenges')">My Challenges</div>
+</div>
+
+<!-- All Challenges -->
+<div id="all-challenges" class="content active">
+    <div class="cards">
+        {% for challenge in all_challenges %}
+            <div class="card" data-challenge-id="{{ challenge.id }}">
+                <h3>{{ challenge.title }}</h3>
+                <p>{{ challenge.description }}</p>
+                <button class="accept-button" onclick="acceptChallenge({{ challenge.id }})">Accept Challenge</button>
+                <a href="{% url 'challenge_overview' challenge.id %}">
+                    <button>Challenge Overview</button>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- My Challenges -->
+<div id="my-challenges" class="content">
+    <div class="cards">
+        {% for challenge in my_challenges %}
+            <div class="card" data-challenge-id="{{ challenge.id }}">
+                <h3>{{ challenge.title }}</h3>
+                <p>{{ challenge.description }}</p>
+                <button class="leave-button" onclick="leaveChallenge({{ challenge.id }})">Leave Challenge</button>
+                <a href="{% url 'challenge_overview' challenge.id %}">
+                    <button>Challenge Overview</button>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showTab('all-challenges'); // Initialize tab to show All Challenges
+    });
+
+    function showTab(tabName) {
+        var tabs = document.querySelectorAll('.tab');
+        var contents = document.querySelectorAll('.content');
+        tabs.forEach(function(tab) {
+            tab.classList.remove('active');
+        });
+        contents.forEach(function(content) {
+            content.classList.remove('active');
+        });
+        document.getElementById(tabName).classList.add('active');
+        document.querySelector('.tab[data-tab="' + tabName + '"]').classList.add('active');
+    }
+
+    function acceptChallenge(challengeId) {
+        const csrfToken = '{{ csrf_token }}'; // Ensure the CSRF token is available in the template
+
+        fetch(`/accept_challenge/${challengeId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken // Include the CSRF token
+            },
+            body: JSON.stringify({
+                challenge_id: challengeId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('You have successfully joined the challenge!');
+                location.reload(); // Reload the page to update the UI
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function leaveChallenge(challengeId) {
+        const csrfToken = '{{ csrf_token }}'; // Ensure the CSRF token is available in the template
+
+        fetch(`/leave_challenge/${challengeId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken // Include the CSRF token
+            },
+            body: JSON.stringify({
+                challenge_id: challengeId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('You have successfully left the challenge!');
+                location.reload(); // Reload the page to update the UI
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+{% endblock %}

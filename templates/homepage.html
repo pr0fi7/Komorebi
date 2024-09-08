@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komorebi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F5F5F5;
+        }
+        .header {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            background-color: #E9ECEF;
+            margin: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+        .main-content h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .main-content h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .main-content p {
+            font-size: 1em;
+            color: #666;
+            max-width: 800px;
+        }
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+        .card .icon {
+            margin-bottom: 10px;
+        }
+        .card h3 {
+            margin: 10px 0;
+        }
+        .card p {
+            color: #666;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #F5F5F5;
+            color: #666;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        .divider {
+            width: 100%;
+            height: 5px;
+            background-color: black;
+            margin: 20px 0;
+        }
+        .news-cards {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px;
+        }
+        .news-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+        .news-card img {
+            width: 100%;
+            height: 150px; /* Set a fixed height for the images */
+            object-fit: cover; /* Ensure the images cover the area without distortion */
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .news-card h3 {
+            margin: 10px;
+        }
+        .news-card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://i.ibb.co/wKhBxfn/Group-3.png" alt="Komorebi Logo" width="200">
+    </div>
+    <div class="main-content">
+        <h1>Doing now what our generations need next.</h1>
+        <h2>For a greener future - Toward ROCHE's absolute zero emissions in 2050.</h2>
+        <p>Our platform empowers you to contribute to ROCHE WORLD’s sustainability goals by engaging in fun and interactive challenges aimed at reducing environmental impact across our workplaces. Your ideas matter, and this is your space to share, create, and make a difference for a sustainable future.</p>
+    </div>
+    <div class="cards">
+        <div class="row">
+            <a href="/book_room" class="card">
+                <div class="icon"><img src="https://i.ibb.co/wCc6tBb/productivity.png" alt="Icon" width="50" height="50"></div>
+                <h3>Track Room Efficiency</h3>
+                <p>Monitor and optimize workplace energy usage in real-time.</p>
+            </a>
+            <a href="/challenges" class="card">
+                <div class="icon"><img src="https://i.ibb.co/RYmV9xh/partnership-5543962.png" alt="Icon" width="50" height="50"></div>
+                <h3>Submit Challenge</h3>
+                <p>Propose new sustainability challenges to improve efficiency.</p>
+            </a>
+            <a href="/submit_idea" class="card">
+                <div class="icon"><img src="https://i.ibb.co/dMrDmQ7/project-management-1087927.png" alt="Icon" width="50" height="50"></div>
+                <h3>Submit Idea</h3>
+                <p>Contribute innovative ideas to boost workplace sustainability.</p>
+            </a>
+        </div>
+        <div class="row">
+            <a href="/challenges_view" class="card">
+                <div class="icon"><img src="https://i.ibb.co/R6MYN5R/leadership-skills-17659950.png" alt="Icon" width="50" height="50"></div>
+                <h3>My Challenges</h3>
+                <p>Track and manage the sustainability challenges you participate in.</p>
+            </a>
+            <a href="/dashboard" class="card">
+                <div class="icon"><img src="https://i.ibb.co/nzHJzWC/dashboard-4263759.png" alt="Icon" width="50" height="50"></div>
+                <h3>Dashboard</h3>
+                <p>Access your personalized insights and progress towards efficiency goals.</p>
+            </a>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    <div class="news-cards">
+        <a href="news1.html" class="news-card">
+            <img src="https://i.ibb.co/7p0F8XQ/nachhaltigkeit-shutterstock-petrmalinak-960x540.jpg" alt="News 1">
+            <div class="news-card-content">
+                <h3>Sustainable News</h3>
+            </div>
+        </a>
+        <a href="news2.html" class="news-card">
+            <img src="https://i.ibb.co/9wdmBY3/images.jpg" alt="News 2">
+            <div class="news-card-content">
+                <h3>How to save the planet</h3>
+            </div>
+        </a>
+        <a href="news3.html" class="news-card">
+            <img src="https://i.ibb.co/cc77LXv/2021-05-12-03-42-26-teaching-sustainability-1160566275-ARTICLE.jpg" alt="News 3">
+            <div class="news-card-content">
+                <h3>Creating a better future for our children</h3>
+            </div>
+        </a>
+    </div>
+    <div class="footer">
+        <p>Together we make more impact. Every challenge completed brings us closer to a sustainable future.</p>
+        <p>&copy; 2024 KomorebiHub.</p>
+    </div>
+</body>
+</html>

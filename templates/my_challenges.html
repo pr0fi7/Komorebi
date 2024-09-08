@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}My Challenges{% endblock %}
+
+{% block content %}
+<div class="tabs">
+    <div class="tab" data-tab="all-challenges" onclick="window.location.href='{% url 'all_challenges' %}'">All Challenges</div>
+    <div class="tab active" data-tab="my-challenges" onclick="window.location.href='{% url 'my_challenges' %}'">My Challenges</div>
+</div>
+
+<div id="my-challenges" class="content active">
+    <div class="cards">
+        {% for challenge in challenges %}
+            <div class="card">
+                <h3>{{ challenge.title }}</h3>
+                <p>{{ challenge.description }}</p>
+                <a href="{% url 'leave_challenge' challenge.id %}">
+                    <button class="leave-button">Leave Challenge</button>
+                </a>
+                <a href="{% url 'challenge_overview' challenge.id %}">
+                    <button>Challenge Overview</button>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
