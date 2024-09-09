@@ -31,3 +31,9 @@ To set up this project locally, follow the steps below:
 git clone https://github.com/pr0fi7/Komorebi.git
 cd Komorebi
 ```
+
+
+
+https://github.com/user-attachments/assets/cbf00ad4-5bdb-4020-aa01-efaa070aec1f
+
+
